@@ -67,18 +67,18 @@ variable "resource_name_templates" {
   type        = map(string)
   description = "A map of resource names to use"
   default = {
-    resource_group_state_name             = "rg-$${workload}-state-$${environment}-$${location}-$${sequence}"
-    resource_group_agents_name            = "rg-$${workload}-agents-$${environment}-$${location}-$${sequence}"
-    resource_group_identity_name          = "rg-$${workload}-identity-$${environment}-$${location}-$${sequence}"
-    virtual_network_name                  = "vnet-$${workload}-$${environment}-$${location}-$${sequence}"
-    network_security_group_name           = "nsg-$${workload}-$${environment}-$${location}-$${sequence}"
-    nat_gateway_name                      = "nat-$${workload}-$${environment}-$${location}-$${sequence}"
-    nat_gateway_public_ip_name            = "pip-nat-$${workload}-$${environment}-$${location}-$${sequence}"
+    resource_group_state_name             = "rg-$${workload}-state-$${environment}-$${location_short}-$${sequence}"
+    resource_group_agents_name            = "rg-$${workload}-agents-$${environment}-$${location_short}-$${sequence}"
+    resource_group_identity_name          = "rg-$${workload}-identity-$${environment}-$${location_short}-$${sequence}"
+    virtual_network_name                  = "vnet-$${workload}-$${environment}-$${location_short}-$${sequence}"
+    network_security_group_name           = "nsg-$${workload}-$${environment}-$${location_short}-$${sequence}"
+    nat_gateway_name                      = "nat-$${workload}-$${environment}-$${location_short}-$${sequence}"
+    nat_gateway_public_ip_name            = "pip-nat-$${workload}-$${environment}-$${location_short}-$${sequence}"
     storage_account_name                  = "sto$${workload}$${environment}$${location_short}$${sequence}$${uniqueness}"
-    storage_account_private_endpoint_name = "pe-sto-$${workload}-$${environment}-$${location}-$${sequence}"
-    agent_compute_postfix_name            = "$${workload}-$${environment}-$${location}-$${sequence}"
-    container_instance_prefix_name        = "aci-$${workload}-$${environment}-$${location}"
-    container_registry_name               = "acr$${workload}$${environment}$${location}$${sequence}$${uniqueness}"
+    storage_account_private_endpoint_name = "pe-sto-$${workload}-$${environment}-$${location_short}-$${sequence}"
+    agent_compute_postfix_name            = "$${workload}-$${environment}-$${location_short}-$${sequence}"
+    container_instance_prefix_name        = "aci-$${workload}-$${environment}-$${location_short}"
+    container_registry_name               = "acr$${workload}$${environment}$${location_short}$${sequence}$${uniqueness}"
     repository_main_name                  = "$${workload}-$${environment}-main"
     repository_template_name              = "$${workload}-$${environment}-template"
     runner_group_name                     = "runner-group-$${workload}-$${environment}"
@@ -182,4 +182,10 @@ variable "runner_use_availability_zones" {
   type        = bool
   default     = false
   description = "Use availability zones for the agent pool if using contaienr instances. This is off by default due to faults in various regions at time of authoring."
+}
+
+variable "agent_instance_count" {
+  type        = number
+  default     = 2
+  description = "The number of self-hosted agent instances to create"
 }

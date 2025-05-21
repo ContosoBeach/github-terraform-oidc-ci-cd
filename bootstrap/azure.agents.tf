@@ -11,7 +11,7 @@ module "azure_devops_agents" {
   container_registry_name                       = local.resource_names.container_registry_name
   location                                      = var.location
   compute_types                                 = [var.self_hosted_agent_type]
-  container_instance_count                      = 4
+  container_instance_count                      = var.agent_instance_count
   version_control_system_type                   = "github"
   version_control_system_personal_access_token  = var.personal_access_token
   version_control_system_organization           = var.organization_name
