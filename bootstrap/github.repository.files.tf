@@ -51,7 +51,8 @@ locals {
 }
 
 resource "github_repository_file" "this" {
-  for_each            = local.main_repository_files
+  # for_each            = local.main_repository_files
+  for_each            = local.pipeline_main_files
   repository          = github_repository.this.name
   file                = each.key
   content             = each.value.content

@@ -4,51 +4,50 @@ on:
   workflow_call:
     inputs:
       terraform_action:
-        description: 'Terraform Action to perform'
-        default: 'apply'
+        description: "Terraform Action to perform"
+        default: "apply"
         type: string
       name:
-        description: 'Environment Details'
+        description: "Environment Details"
         type: string
-        default: ''
+        default: ""
       display_name:
-        description: 'Environment Display Name'
+        description: "Environment Display Name"
         type: string
-        default: ''
+        default: ""
       runner_name:
-        description: 'Runner Name'
+        description: "Runner Name"
         type: string
-        default: ''
+        default: ""
       environment_name_plan:
-        description: 'Environment Name Plan'
+        description: "Environment Name Plan"
         type: string
-        default: ''
+        default: ""
       environment_name_apply:
-        description: 'Environment Name Apply'
+        description: "Environment Name Apply"
         type: string
-        default: ''
+        default: ""
       dependent_environment:
-        description: 'Dependent Environment'
+        description: "Dependent Environment"
         type: string
-        default: ''
+        default: ""
       backend_azure_storage_account_container_name:
-        description: 'Backend Azure Storage Account Container Name'
+        description: "Backend Azure Storage Account Container Name"
         type: string
-        default: ''
+        default: ""
       root_module_folder_relative_path:
-        description: 'Root Module Folder Relative Path'
-        default: '.'
+        description: "Root Module Folder Relative Path"
+        default: "."
         type: string
       terraform_cli_version:
-        description: 'Terraform CLI Version'
-        default: 'latest'
+        description: "Terraform CLI Version"
+        default: "latest"
         type: string
 
 jobs:
   plan:
     name: Plan with Terraform
-    runs-on:
-      ${{ inputs.runner_name }}
+    runs-on: ${{ inputs.runner_name }}
     concurrency: ${{ inputs.backend_azure_storage_account_container_name }}
     environment: ${{ inputs.environment_name_plan }}
     permissions:
@@ -75,24 +74,24 @@ jobs:
         shell: pwsh
         run: |
           terraform `
-          -chdir="${{inputs.root_module_folder_relative_path}}" `
+          -chdir="${{ inputs.root_module_folder_relative_path }}" `
           init `
-          -backend-config="storage_account_name=${{vars.BACKEND_AZURE_STORAGE_ACCOUNT_NAME}}" `
-          -backend-config="container_name=${{vars.BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME}}" `
-          -backend-config="key=terraform.tfstate"
+          -backend-config="storage_account_name=${{ vars.BACKEND_AZURE_STORAGE_ACCOUNT_NAME }}" `
+          -backend-config="container_name=${{ vars.BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME }}" `
+          -backend-config="key=${{ inputs.root_module_folder_relative_path }}.tfstate"
 
       - name: Terraform Plan for ${{ inputs.terraform_action == 'destroy' && 'Destroy' || 'Apply' }}
         shell: pwsh
         run: |
-          $additionalVariables = ConvertFrom-Json '${{ vars.ADDITIONAL_ENVIRONMENT_VARIABLES }}'
-          foreach($var in $additionalVariables.PSObject.Properties) {
-            if($var.Name.StartsWith("TF_VAR_")) {
-              Write-Host "Setting: $($var.Name) = $($var.Value)"
-              [System.Environment]::SetEnvironmentVariable($var.Name, $var.Value)
-            }
-          }
+          # $additionalVariables = ConvertFrom-Json '${{ vars.ADDITIONAL_ENVIRONMENT_VARIABLES }}'
+          # foreach($var in $additionalVariables.PSObject.Properties) {
+          #   if($var.Name.StartsWith("TF_VAR_")) {
+          #     Write-Host "Setting: $($var.Name) = $($var.Value)"
+          #     [System.Environment]::SetEnvironmentVariable($var.Name, $var.Value)
+          #   }
+          # }
 
-          $varFilePath = "${{ vars.VAR_FILE_PATH }}"
+          # $varFilePath = "${{ vars.VAR_FILE_PATH }}"
           $action = "${{ inputs.terraform_action }}"
 
           # Run Terraform Plan
@@ -101,9 +100,9 @@ jobs:
           $arguments += "-chdir=${{ inputs.root_module_folder_relative_path }}"
           $arguments += "plan"
 
-          if($varFilePath -ne "") {
-            $arguments += "-var-file=$varFilePath"
-          }
+          # if($varFilePath -ne "") {
+          #   $arguments += "-var-file=$varFilePath"
+          # }
 
           $arguments += "-out=tfplan"
           $arguments += "-input=false"
@@ -119,7 +118,7 @@ jobs:
         shell: pwsh
         run: |
           $stagingDirectory = "staging"
-          $rootModuleFolder = "${{inputs.root_module_folder_relative_path}}"
+          $rootModuleFolder = "${{ inputs.root_module_folder_relative_path }}"
           New-Item -Path . -Name $stagingDirectory -ItemType "directory"
           Copy-Item -Path "./*" -Exclude @(".git", ".terraform", ".github",  $stagingDirectory) -Recurse -Destination "./$stagingDirectory"
 
@@ -138,15 +137,14 @@ jobs:
         shell: pwsh
         run: |
           terraform `
-          -chdir="${{inputs.root_module_folder_relative_path}}" `
+          -chdir="${{ inputs.root_module_folder_relative_path }}" `
           show `
           tfplan
 
   apply:
     name: Apply with Terraform
     needs: plan
-    runs-on:
-      ${{ inputs.runner_name }}
+    runs-on: ${{ inputs.runner_name }}
     concurrency: ${{ inputs.backend_azure_storage_account_container_name }}
     environment: ${{ inputs.environment_name_apply }}
     permissions:
@@ -158,7 +156,7 @@ jobs:
       ARM_TENANT_ID: "${{ vars.AZURE_TENANT_ID }}"
       ARM_USE_AZUREAD: true
       ARM_USE_OIDC: true
-      AZAPI_RETRY_GET_AFTER_PUT_MAX_TIME: "60m"      
+      AZAPI_RETRY_GET_AFTER_PUT_MAX_TIME: "60m"
 
     steps:
       - name: Download a Build Artifact
@@ -176,17 +174,17 @@ jobs:
         shell: pwsh
         run: |
           terraform `
-          -chdir="${{inputs.root_module_folder_relative_path}}" `
+          -chdir="${{ inputs.root_module_folder_relative_path }}" `
           init `
-          -backend-config="storage_account_name=${{vars.BACKEND_AZURE_STORAGE_ACCOUNT_NAME}}" `
-          -backend-config="container_name=${{vars.BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME}}" `
-          -backend-config="key=terraform.tfstate"
+          -backend-config="storage_account_name=${{ vars.BACKEND_AZURE_STORAGE_ACCOUNT_NAME }}" `
+          -backend-config="container_name=${{ vars.BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME }}" `
+          -backend-config="key=${{ inputs.root_module_folder_relative_path }}.tfstate"
 
       - name: Terraform ${{ inputs.terraform_action == 'destroy' && 'Destroy' || 'Apply' }}
         shell: pwsh
         run: |
           terraform `
-          -chdir="${{inputs.root_module_folder_relative_path}}" `
+          -chdir="${{ inputs.root_module_folder_relative_path }}" `
           apply `
           -input=false `
           -auto-approve `
