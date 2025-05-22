@@ -14,4 +14,4 @@ agent_instance_count   = 1
 
 # run the following envrionment variable commands
 # export ARM_SUBSCRIPTION_ID=`az account show --query id -o tsv`
-# TF_VAR_personal_access_token="your_toket"
+# export TF_VAR_personal_access_token="your_toket"
