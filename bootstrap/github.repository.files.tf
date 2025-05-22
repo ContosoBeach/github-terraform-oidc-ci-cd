@@ -17,7 +17,7 @@ locals {
   } }
 
   template_folder = "${path.module}/${var.example_module_path}"
-  files = { for file in fileset(local.template_folder, "**") : file => {
+  files = { for file in fileset(local.template_folder, ".gitignore") : file => {
     name    = file
     content = file("${local.template_folder}/${file}")
   } }
@@ -51,8 +51,7 @@ locals {
 }
 
 resource "github_repository_file" "this" {
-  # for_each            = local.main_repository_files
-  for_each            = local.pipeline_main_files
+  for_each            = local.main_repository_files
   repository          = github_repository.this.name
   file                = each.key
   content             = each.value.content
