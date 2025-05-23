@@ -48,7 +48,7 @@ module "resource_group_environments" {
 resource "azurerm_role_assignment" "github_action_plan" {
   for_each             = local.environments
   scope                = data.azurerm_subscription.current.id
-  role_definition_name = "Reader"
+  role_definition_name = "Contributor"
   principal_id         = module.user_assigned_managed_identity["${each.key}-plan"].principal_id
 }
 resource "azurerm_role_assignment" "github_action_apply" {
